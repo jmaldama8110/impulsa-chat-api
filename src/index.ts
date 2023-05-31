@@ -45,18 +45,39 @@ app.use(function (request:any, response, next) {
   next();
 });
 
-app.post('/test', async (req, res) => {
+app.post('/test', async (req, res)=>{
+
+  try{
+
+    if( !req.query.toEmail || !req.query.templateId || !req.query.fromEmail){
+      throw new Error('Missing some query param: toEmail, fromEmail, templateId')
+    }
   
+    setTimeout( ()=>{
+      res.send({
+        toEmail: req.query.toEmail,
+        fromEmail: req.query.fromEmail,
+        templateId: req.query.templateId
+      });
+    },1000)
+  }
+  catch(e:any){
+    res.status(400).send(e.message)
+  }
 
 
+
+})
+
+app.post('/sendemail', async (req, res) => {
 
   const sendGridApiKey = process.env.SENDGRID_API_KEY as string;
   const sendGridApiUrl = process.env.SENDGRID_BASE_URL as string;
   sgMail.setApiKey( sendGridApiKey);
 
   try{
-    if( !req.query.toEmail || !req.query.templateId){
-      throw new Error('Missing some query param: toEmail or templateId')
+    if( !req.query.toEmail || !req.query.templateId || !req.query.fromEmail){
+      throw new Error('Missing some query param: toEmail, fromEmail, templateId')
     }
 
     const api = axios.create( {
@@ -70,7 +91,7 @@ app.post('/test', async (req, res) => {
     });
 
     const apiRes = await api.post('/v3/mail/send',{
-      "from": { "email": "contact@aristanetworks.global" },
+      "from": { "email": req.query.fromEmail },
       "personalizations": [
       {
         "to": [ { "email": req.query.toEmail } ],

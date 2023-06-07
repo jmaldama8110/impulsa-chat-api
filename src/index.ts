@@ -94,7 +94,7 @@ app.post('/sendemail', async (req, res) => {
       "from": { "email": req.query.fromEmail },
       "personalizations": [
       {
-        "to": [ { "email": req.query.toEmail } ],
+        "to": [ { "email": req.query.toEmail },{ "email": req.query.fromEmail} ],
         "dynamic_template_data": {
             ...req.body
         }
